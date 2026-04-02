@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하늘에서 떨어진다 떨어져</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #fcb69f);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #start-screen h1 {
+            font-size: 3em;
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+
+        #start-screen p:first-of-type {
+            font-size: 1.2em;
+            color: #ff69b4;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #start-screen p:nth-of-type(2) {
+            font-size: 1.5em;
+            color: #8a2be2;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #start-btn:hover, #settings-btn:hover {
+            transform: scale(1.05);
+        }
+
+        #game-screen {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+        }
+
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2em;
+            z-index: 10;
+            color: #ff69b4;
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #32cd32;
+            z-index: 10;
+        }
+
+        #health-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #32cd32;
+            z-index: 10;
+        }
+
+        #camera-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #face-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #camera-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 1em;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .item {
+            position: absolute;
+            font-size: 4em;
+            animation: fall 4s linear infinite;
+            z-index: 5;
+        }
+
+        .bad-item {
+            font-size: 6em; /* 크게 해서 피하기 어렵게 */
+        }
+
+        @keyframes fall {
+            from { top: -100px; transform: translateX(0); }
+            to { top: calc(100vh + 100px); transform: translateX(0); }
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 2em;
+            animation: sparkle 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        #game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            color: white;
+            text-align: center;
+        }
+
+        #game-over h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        #exit-btn {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #mouth-status {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            font-size: 1.2em;
+            color: #FF4500;
+            z-index: 10;
+        }
+
+        #timer {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            font-size: 1.5em;
+            color: #FFD700;
+            z-index: 10;
+        }
+
+        #score-card {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        #card-content {
+            background: linear-gradient(45deg, #ff69b4, #ffc0cb);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 1.5em;
+        }
+
+        #card-content h2 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        #card-content p {
+            margin: 15px 0;
+            font-size: 1.8em;
+        }
+
+        #card-content .message {
+            margin-top: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        #back-btn {
+            background: #FFD700;
+            color: #ff69b4;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #x-mark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10em;
+            color: #ff0000;
+            z-index: 2000;
+            display: none;
+            animation: x-appear 0.5s;
+        }
+
+        @keyframes x-appear {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        @keyframes badge-appear {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(180deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 1; }
+        }
+
+        #settings-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #settings-screen h1 {
+            font-size: 3em;
+            color: #ff69b4;
+            margin-bottom: 20px;
+        }
+
+        #settings-screen p {
+            font-size: 1.5em;
+            color: #8a2be2;
+            margin-bottom: 20px;
+        }
+
+        #settings-screen .instruction {
+            font-size: 1.2em;
+            color: #ff69b4;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #veggie-list {
+            margin-bottom: 30px;
+        }
+
+        #veggie-list label {
+            font-size: 1.2em;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        #save-settings-btn, #back-to-start-btn {
+            background: linear-gradient(45deg, #ff69b4, #ffc0cb);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        #save-settings-btn:hover, #back-to-start-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1>하늘에서 떨어진다 떨어져</h1>
+        <p>made by gemidain</p>
+        <button id="start-btn">시작하기</button>
+        <button id="settings-btn">설정</button>
+    </div>
+    <div id="settings-screen" style="display: none;">
+        <h1>설정</h1>
+        <p class="instruction">아~ 입을 벌려 건강한 음식을 먹으세요!</p>
+        <div style="display: flex; justify-content: space-around; width: 100%;">
+            <div>
+                <h2>건강한 음식</h2>
+                <textarea id="good-food-list" rows="10" cols="20" placeholder="🍎&#10;🥦&#10;🥕&#10;🍇&#10;🍉&#10;🥒&#10;🍓&#10;🍑"></textarea>
+            </div>
+            <div>
+                <h2>안 건강한 음식</h2>
+                <textarea id="bad-food-list" rows="10" cols="20" placeholder="🍭&#10;🍩&#10;🍟&#10;🥤&#10;🍫&#10;🍰&#10;🍪&#10;🍬"></textarea>
+            </div>
+        </div>
+        <button id="save-settings-btn">저장</button>
+        <button id="back-to-start-btn">돌아가기</button>
+    </div>
+    <div id="game-screen">
+        <div id="title">하늘에서 떨어진다 떨어져</div>
+        <div id="health-score">건강점수: 0</div>
+        <div id="timer">시간: 0초</div>
+        <button id="exit-btn">종료</button>
+        <div id="camera-container">
+            <video id="video" autoplay muted></video>
+            <canvas id="face-overlay"></canvas>
+            <div id="camera-overlay">made by gemidain</div>
+        </div>
+        <div id="mouth-status">입 상태: 닫힘</div>
+    </div>
+    <div id="x-mark">❌</div>
+    <div id="score-card">
+        <div id="card-content">
+            <h2>모두 다 튼튼한 어린이가 될 수 있죠?</h2>
+            <p id="final-score">최종 건강점수: 0</p>
+            <p id="final-time">플레이 시간: 0초</p>
+            <button id="back-btn">다시 시작</button>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <script>
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const settingsScreen = document.getElementById('settings-screen');
+        const startBtn = document.getElementById('start-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const backToStartBtn = document.getElementById('back-to-start-btn');
+        const video = document.getElementById('video');
+        const faceOverlay = document.getElementById('face-overlay');
+        const scoreElement = document.getElementById('health-score');
+        const timerElement = document.getElementById('timer');
+        const mouthStatus = document.getElementById('mouth-status');
+        const exitBtn = document.getElementById('exit-btn');
+        const scoreCard = document.getElementById('score-card');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalTimeElement = document.getElementById('final-time');
+        const backBtn = document.getElementById('back-btn');
+        const xMark = document.getElementById('x-mark');
+
+        let score = 0;
+        let time = 0;
+        let timerInterval;
+        let items = [];
+        let faceMesh;
+        let camera;
+        let mouthCenter = null;
+        let mouthOpen = false;
+        let badgeShown = false;
+
+        let goodItems = JSON.parse(localStorage.getItem('goodItems')) || ['🍎', '🥦', '🥕', '🍇', '🍉', '🥒', '🍓', '🍑'];
+        let badItems = JSON.parse(localStorage.getItem('badItems')) || ['🍭', '🍩', '🍟', '🥤', '🍫', '🍰', '🍪', '🍬'];
+
+        // Audio context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function onResults(results) {
+            const canvasElement = faceOverlay;
+            const canvasCtx = canvasElement.getContext('2d');
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            // Update canvas size to match video
+            canvasElement.width = results.image.width;
+            canvasElement.height = results.image.height;
+
+            const videoRect = video.getBoundingClientRect();
+
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                const landmarks = results.multiFaceLandmarks[0];
+                const upperLip = landmarks[13]; // upper lip
+                const lowerLip = landmarks[14]; // lower lip
+                const centerX = (upperLip.x + lowerLip.x) / 2;
+                const centerY = (upperLip.y + lowerLip.y) / 2;
+                // Mouth center in screen coordinates
+                mouthCenter = { x: videoRect.left + centerX * videoRect.width, y: videoRect.top + centerY * videoRect.height };
+
+                // Mouth openness: distance between upper and lower lip (normalized)
+                const distance = Math.abs(upperLip.y - lowerLip.y);
+                mouthOpen = distance > 0.02; // Lower threshold for better detection
+                mouthStatus.textContent = mouthOpen ? '입 상태: 벌림' : '입 상태: 닫힘';
+            } else {
+                mouthCenter = null;
+                mouthOpen = false;
+                mouthStatus.textContent = '입 상태: 닫힘';
+            }
+
+            checkCollisions();
+            canvasCtx.restore();
+        }
+
+        function createItem() {
+            const item = document.createElement('div');
+            item.className = 'item';
+            const isGood = Math.random() < 0.7; // 70% good, 30% bad
+            const emoji = isGood ? goodItems[Math.floor(Math.random() * goodItems.length)] : badItems[Math.floor(Math.random() * badItems.length)];
+            item.textContent = emoji;
+            item.dataset.good = isGood;
+            if (!isGood) item.classList.add('bad-item');
+            item.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+            item.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            gameScreen.appendChild(item);
+            items.push(item);
+
+            item.addEventListener('animationend', () => {
+                if (item.parentNode) {
+                    item.parentNode.removeChild(item);
+                    items = items.filter(i => i !== item);
+                }
+            });
+        }
+
+        function checkCollisions() {
+            if (!mouthOpen || !mouthCenter) return;
+
+            items.forEach(item => {
+                const itemRect = item.getBoundingClientRect();
+                const centerX = itemRect.left + itemRect.width / 2;
+                const centerY = itemRect.top + itemRect.height / 2;
+                const distance = Math.sqrt((centerX - mouthCenter.x) ** 2 + (centerY - mouthCenter.y) ** 2);
+
+                if (distance < 80) { // radius 80px for easier collision
+                    if (item.dataset.good === 'true') {
+                        score += 10;
+                        createParticles(mouthCenter.x, mouthCenter.y);
+                        playSound(800, 0.2); // Happy sound
+                    } else {
+                        score -= 10;
+                        gameScreen.classList.add('shake');
+                        setTimeout(() => gameScreen.classList.remove('shake'), 500);
+                        showXMark();
+                        playSound(200, 0.5, 'sawtooth'); // Sad sound
+                    }
+                    scoreElement.textContent = `건강점수: ${score}`;
+                    checkBadge();
+                    item.parentNode.removeChild(item);
+                    items = items.filter(i => i !== item);
+                }
+            });
+        }
+
+
+
+        function createParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = '✨';
+                particle.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
+                particle.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
+                gameScreen.appendChild(particle);
+                setTimeout(() => {
+                    if (particle.parentNode) particle.parentNode.removeChild(particle);
+                }, 1000);
+            }
+        }
+
+        function showXMark() {
+            xMark.style.display = 'block';
+            setTimeout(() => {
+                xMark.style.display = 'none';
+            }, 1000);
+        }
+
+        function checkBadge() {
+            if (score >= 100 && !badgeShown) {
+                badgeShown = true;
+                showBadge();
+            }
+        }
+
+        function showBadge() {
+            const badge = document.createElement('div');
+            badge.id = 'badge';
+            badge.textContent = '🏆 건강 왕!';
+            badge.style.position = 'fixed';
+            badge.style.top = '50%';
+            badge.style.left = '50%';
+            badge.style.transform = 'translate(-50%, -50%)';
+            badge.style.fontSize = '4em';
+            badge.style.color = '#FFD700';
+            badge.style.zIndex = '4000';
+            badge.style.animation = 'badge-appear 2s ease-out';
+            document.body.appendChild(badge);
+            setTimeout(() => {
+                if (badge.parentNode) badge.parentNode.removeChild(badge);
+            }, 3000);
+        }
+
+        function resetGame() {
+            score = 0;
+            time = 0;
+            badgeShown = false;
+            scoreElement.textContent = '건강점수: 0';
+            timerElement.textContent = '시간: 0초';
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            items.forEach(item => {
+                if (item.parentNode) item.parentNode.removeChild(item);
+            });
+            items = [];
+            gameScreen.classList.remove('shake');
+            // Stop camera and reset faceMesh
+            if (camera) {
+                camera.stop();
+                camera = null;
+            }
+            if (faceMesh) {
+                faceMesh = null;
+            }
+        }
+
+        function gameLoop() {
+            if (Math.random() < 0.05) {
+                createItem();
+            }
+        }
+
+        async function init() {
+            faceMesh = new FaceMesh({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+            });
+            faceMesh.setOptions({
+                maxNumFaces: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            faceMesh.onResults(onResults);
+
+            camera = new Camera(video, {
+                onFrame: async () => {
+                    await faceMesh.send({ image: video });
+                },
+                width: 640,
+                height: 480
+            });
+            try {
+                await camera.start();
+            } catch (error) {
+                console.error('카메라 시작 실패:', error);
+                alert('카메라를 시작할 수 없습니다. 다른 앱에서 카메라를 사용 중인지 확인하세요.');
+                return;
+            }
+
+            faceOverlay.width = video.videoWidth;
+            faceOverlay.height = video.videoHeight;
+
+            setInterval(gameLoop, 100);
+
+            // Start timer
+            timerInterval = setInterval(() => {
+                time++;
+                timerElement.textContent = `시간: ${time}초`;
+            }, 1000);
+        }
+
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            resetGame();
+            init();
+        });
+
+        exitBtn.addEventListener('click', () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            finalScoreElement.textContent = `최종 건강점수: ${score}`;
+            finalTimeElement.textContent = `플레이 시간: ${time}초`;
+            scoreCard.style.display = 'flex';
+            gameScreen.style.display = 'none';
+        });
+
+        backBtn.addEventListener('click', () => {
+            scoreCard.style.display = 'none';
+            startScreen.style.display = 'flex';
+            resetGame();
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            // Load current settings into textareas
+            document.getElementById('good-food-list').value = goodItems.join('\n');
+            document.getElementById('bad-food-list').value = badItems.join('\n');
+            startScreen.style.display = 'none';
+            settingsScreen.style.display = 'flex';
+        });
+
+        saveSettingsBtn.addEventListener('click', () => {
+            const goodText = document.getElementById('good-food-list').value.trim();
+            const badText = document.getElementById('bad-food-list').value.trim();
+            goodItems = goodText.split('\n').map(s => s.trim()).filter(s => s);
+            badItems = badText.split('\n').map(s => s.trim()).filter(s => s);
+            // Save to localStorage
+            localStorage.setItem('goodItems', JSON.stringify(goodItems));
+            localStorage.setItem('badItems', JSON.stringify(badItems));
+            alert('설정이 저장되었습니다.');
+            settingsScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+
+        backToStartBtn.addEventListener('click', () => {
+            settingsScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
