@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>건강한 음식 게임</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'NanumSquareRound';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui">
+            <div id="timer">⏰ 100초</div>
+            <div id="score">튼튼점수: 0점</div>
+            <div id="buttons">
+                <button id="settings-btn">⚙️</button>
+                <button id="end-game-btn">게임 종료</button>
+            </div>
+        </div>
+        <video id="video" autoplay muted></video>
+        <canvas id="canvas"></canvas>
+        <div id="result-screen" style="display: none;">
+            <h1>게임 종료!</h1>
+            <p id="final-score">최종 점수: 0점</p>
+            <p>튼튼한 어린이로 자라나길 응원합니다!</p>
+            <button id="restart-btn">다시 시작</button>
+            <canvas id="confetti-canvas"></canvas>
+        </div>
+        <div id="reward" style="display: none;"></div>
+        <div id="feedback" style="display: none;"></div>
+        <div id="settings-screen" style="display: none;">
+            <h2>이모티콘 설정</h2>
+            <label>건강한 음식: <input type="text" id="healthy-input" value="🍎,🥦,🥕,🍌"></label><br>
+            <label>건강하지 않은 음식: <input type="text" id="unhealthy-input" value="🍩,🍕,🍟,🍦"></label><br>
+            <button id="save-settings">저장</button>
+            <button id="close-settings">닫기</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
